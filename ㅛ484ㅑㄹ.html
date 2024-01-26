@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>블록 부수기 게임</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    #game-container {
+      display: none;
+    }
+
+    .block {
+      width: 40px;
+      height: 40px;
+      margin: 4px;
+      display: inline-block;
+      background-color: #3498db;
+      cursor: pointer;
+    }
+
+    #score {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    #timer {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="main-container" class="container">
+    <h1>블록 부수기 게임</h1>
+    <a href="#" class="button" onclick="startGame()">시작하기</a>
+  </div>
+
+  <div id="game-container" class="container">
+    <h1>블록 부수기 게임</h1>
+    <p id="score">스코어: 0</p>
+    <p id="timer">남은 시간: 15초</p>
+    <div id="block-container"></div>
+  </div>
+
+  <script>
+    let blocks, score, timer, timerInterval;
+
+    function startGame() {
+      // 메인 화면 숨기고 게임 화면 보이기
+      document.getElementById('main-container').style.display = 'none';
+      document.getElementById('game-container').style.display = 'block';
+
+      score = 0;
+      timer = 15;
+
+      // 시작할 때 블록 생성
+      createBlocks();
+
+      // 1초마다 타이머 감소
+      timerInterval = setInterval(() => {
+        timer--;
+        updateTimerDisplay();
+
+        if (timer === 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function createBlocks() {
+      const blockContainer = document.getElementById('block-container');
+      blockContainer.innerHTML = '';
+
+      blocks = [];
+
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const block = document.createElement('div');
+          block.classList.add('block');
+          block.setAttribute('data-index', i * 8 + j);
+          block.addEventListener('click', () => breakBlock(i * 8 + j));
+          blockContainer.appendChild(block);
+          blocks.push(true); // 블록이 살아있는 상태로 초기화
+        }
+        blockContainer.appendChild(document.createElement('br'));
+      }
+
+      // 랜덤 시간 후에 블록 숨기기
+      setTimeout(() => {
+        hideRandomBlock();
+      }, Math.floor(Math.random() * 5000) + 1000);
+    }
+
+    function hideRandomBlock() {
+      const liveBlocks = blocks.filter(status => status);
+      if (liveBlocks.length === 0) {
+        // 모든 블록이 부서져서 게임 종료
+        allclear();
+        return;
+      }
+
+      const randomIndex = liveBlocks[Math.floor(Math.random() * liveBlocks.length)];
+      blocks[randomIndex] = false; // 블록 상태 업데이트
+      const block = document.querySelector(`[data-index="${randomIndex}"]`);
+      block.style.backgroundColor = '#3498db'; // 블록을 다시 생성
+
+      // 랜덤 시간 후에 다음 블록 숨기기
+      setTimeout(() => {
+        hideRandomBlock();
+      }, Math.floor(Math.random() * 5000) + 1000);
+    }
+
+    function breakBlock(index) {
+      const block = document.querySelector(`[data-index="${index}"]`);
+
+      if (blocks[index]) {
+        block.style.backgroundColor = '#fff'; // 살아있는 블록을 부숨
+        blocks[index] = false; // 블록 상태 업데이트
+        score++; // 스코어 증가
+        updateScoreDisplay();
+
+        if (blocks.every(status => !status)) {
+          // 모든 블록이 부서져서 게임 종료
+          allclear();
+        } else {
+          // 부서진 블록이 있으면 다음 블록 숨기기
+          hideRandomBlock();
+        }
+      } else {
+        alert('이미 부서진 블록입니다. 다른 블록을 선택하세요.');
+      }
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById('score').innerText = `스코어: ${score}`;
+    }
+
+    function updateTimerDisplay() {
+      document.getElementById('timer').innerText = `남은 시간: ${timer}초`;
+    }
+
+      function allclear(){
+        alert(`축하합니다! 모든 블록을 부수었습니다! 당신의 스코어는 ${score}입니다!`);
+        startGame();
+      }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      alert(`게임 종료! 당신의 스코어는 ${score}입니다.`);
+      startGame(); // 게임 리셋
+    }
+  </script>
+</body>
+</html>
