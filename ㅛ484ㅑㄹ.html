@@ -65,9 +65,8 @@
         const upgradeStatusElement = document.getElementById("upgradeStatus");
 
         if (counterValue >= 10000) {
-            upgradeStatusElement.innerText = "1초마다 숫자가 1씩 올라갑니다.";
+            upgradeStatusElement.innerText = "dean의생일은 2일뒤.";
             clearInterval(upgradeInterval);
-            upgradeInterval = setInterval(increaseCounterAutomatically, 1000);
         }else {
             upgradeStatusElement.innerText = "";
             clearInterval(upgradeInterval);
